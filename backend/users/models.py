@@ -107,3 +107,6 @@ class Purchase(models.Model):
         verbose_name='Дата покупки',
         auto_now_add=True
     )
+
+    def __str__(self):
+        return f'Пользователь {self.user.get_full_name()} приобрел курс: {self.course}'
