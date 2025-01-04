@@ -2,11 +2,13 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from core.constants import EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
+from core.constants import (DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH,
+                            USERNAME_MAX_LENGTH)
+from courses.models import Course
 
 
-class User(AbstractUser):
-    """Класс профиля пользователя."""
+class CustomUser(AbstractUser):
+    """Кастомная модель пользователя."""
 
     ROLE_STUDENT = 'student'
     ROLE_TEACHER = 'teacher'
@@ -66,3 +68,42 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.get_full_name()
+
+
+class Balance(models.Model):
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='balance'
+    )
+    amount = models.PositiveIntegerField(
+        default=DEFAULT_BALANCE_AMOUNT,
+        verbose_name='Количество бонусов'
+    )
+
+    class Meta:
+        verbose_name = 'Баланс'
+        verbose_name_plural = 'Балансы'
+        ordering = ('-id',)
+
+    def __str__(self):
+        return f'Баланс пользователя {self.user.get_full_name()}: {self.amount}'
+
+
+class Purchase(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='buyer',
+        verbose_name='Покупатель'
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='course',
+        verbose_name='Курс'
+    )
+    purchased_at = models.DateTimeField(
+        verbose_name='Дата покупки',
+        auto_now_add=True
+    )
