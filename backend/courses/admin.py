@@ -9,7 +9,7 @@ class CourseAdmin(admin.ModelAdmin):
         'id', 'author', 'title',
         'description', 'price', 'is_active'
     )
-    list_filter = ('author', 'price', 'is_active',)
+    list_filter = ('author', 'is_active',)
 
 
 @admin.register(Lesson)

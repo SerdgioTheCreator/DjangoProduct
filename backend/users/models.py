@@ -76,7 +76,8 @@ class Balance(models.Model):
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='balance'
+        related_name='balance',
+        verbose_name='Пользователь'
     )
     amount = models.PositiveIntegerField(
         default=DEFAULT_BALANCE_AMOUNT,
