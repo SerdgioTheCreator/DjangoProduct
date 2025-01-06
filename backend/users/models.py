@@ -71,6 +71,8 @@ class CustomUser(AbstractUser):
 
 
 class Balance(models.Model):
+    """Модель баланса пользователя."""
+
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
@@ -91,6 +93,8 @@ class Balance(models.Model):
 
 
 class Purchase(models.Model):
+    """Модель покупки курса пользователем."""
+
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -110,3 +114,8 @@ class Purchase(models.Model):
 
     def __str__(self):
         return f'Пользователь {self.user.get_full_name()} приобрел курс: {self.course}'
+
+    class Meta:
+        verbose_name = 'Покупка'
+        verbose_name_plural = 'Покупки'
+        ordering = ('id',)

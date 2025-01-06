@@ -1,15 +1,17 @@
 from django.db import models
 
-from core.constants import COURSE_TITLE_MAX_LENGTH, COURSE_DESCRIPTION_MAX_LENGTH, COURSE_AUTHOR_MAX_LENGTH
+from core.constants import TITLE_MAX_LENGTH, COURSE_DESCRIPTION_MAX_LENGTH, COURSE_AUTHOR_MAX_LENGTH, URL_MAX_LENGTH
 
 
 class Course(models.Model):
+    """Модель курса."""
+
     author = models.CharField(
         max_length=COURSE_AUTHOR_MAX_LENGTH,
         verbose_name='Автор'
     )
     title = models.CharField(
-        max_length=COURSE_TITLE_MAX_LENGTH,
+        max_length=TITLE_MAX_LENGTH,
         verbose_name='Название'
     )
     description = models.TextField(
@@ -32,3 +34,50 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Lesson(models.Model):
+    """Модель урока."""
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='lessons',
+        verbose_name='Урок'
+    )
+    title = models.CharField(
+        max_length=TITLE_MAX_LENGTH,
+        verbose_name='Название'
+    )
+    link = models.URLField(
+        max_length=URL_MAX_LENGTH,
+        verbose_name='Ссылка'
+    )
+
+    class Meta:
+        verbose_name = 'Урок'
+        verbose_name_plural = 'Уроки'
+        ordering = ('-id',)
+
+    def __str__(self):
+        return self.title
+
+
+class Group(models.Model):
+    """Модель группы."""
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='groups',
+        verbose_name='Группа'
+    )
+    title = models.CharField(
+        max_length=TITLE_MAX_LENGTH,
+        verbose_name='Название'
+    )
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+        ordering = ('-id',)

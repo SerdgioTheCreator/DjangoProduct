@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from courses.models import Course
+from courses.models import Course, Group, Lesson
 
 
 @admin.register(Course)
@@ -10,3 +10,13 @@ class CourseAdmin(admin.ModelAdmin):
         'description', 'price', 'is_active'
     )
     list_filter = ('author', 'price', 'is_active',)
+
+
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ('course', 'title', 'link')
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('course', 'title')
