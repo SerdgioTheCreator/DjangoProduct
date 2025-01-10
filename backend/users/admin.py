@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
-from users.models import CustomUser, Purchase, Balance
+from users.models import Balance, CustomUser, Purchase
 
 
 @admin.register(CustomUser)
