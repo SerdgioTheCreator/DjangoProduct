@@ -27,7 +27,7 @@ def post_save_purchase(instance, created, **kwargs):
         balance = instance.user.balance
         price = instance.course.price
         with transaction.atomic():
-            if balance.amount <= price:
+            if balance.amount < price:
                 raise ValueError('Ошибка. Недостаточно средств для покупки курса.')
             elif not instance.course.is_active:
                 raise ValueError('Ошибка. Этот курс недоступен для покупки.')
