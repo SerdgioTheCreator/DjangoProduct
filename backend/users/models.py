@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import models
+from django.db import models, transaction
 
 from core.constants import DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
 from courses.models import Course
@@ -97,6 +97,25 @@ class Balance(models.Model):
         ordering = ('-id',)
 
 
+class PurchaseManager(models.Manager):
+    @staticmethod
+    def create_purchase(user, course):
+        """Метод покупки курса пользователем."""
+
+        with transaction.atomic():
+            if not course.is_active:
+                raise ValueError('Этот курс недоступен для покупки.')
+
+            if user.balance.amount < course.price:
+                raise ValueError('Недостаточно средств для покупки курса.')
+
+            user.balance.amount -= course.price
+            user.balance.save()
+
+            purchase = Purchase.objects.create(user=user, course=course)
+            return purchase
+
+
 class Purchase(models.Model):
     """Модель покупки курса пользователем."""
 
@@ -117,8 +136,10 @@ class Purchase(models.Model):
         auto_now_add=True
     )
 
+    objects = PurchaseManager()
+
     def __str__(self):
-        return f'Пользователь {self.user.get_full_name()} приобрел курс "{self.course}"'
+        return f'Пользователь {self.user.get_full_name()} приобрел курс - {self.course}'
 
     class Meta:
         verbose_name = 'Покупка'
