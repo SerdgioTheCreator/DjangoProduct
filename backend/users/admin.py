@@ -20,6 +20,7 @@ class UserAdmin(BaseUserAdmin):
     list_display = ('id', 'email', 'username', 'first_name', 'last_name', 'role', 'get_user_balance')
     list_filter = ('role',)
     search_fields = ('username', 'first_name', 'last_name', 'email')
+    filter_horizontal = ('user_permissions',)
 
     @admin.display(description='Баланс')
     def get_user_balance(self, obj):

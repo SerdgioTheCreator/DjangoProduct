@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from core.constants import (COURSE_AUTHOR_MAX_LENGTH, COURSE_DESCRIPTION_MAX_LENGTH,
@@ -28,13 +29,13 @@ class Course(models.Model):
         verbose_name='Доступность'
     )
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
         ordering = ('-id',)
-
-    def __str__(self):
-        return self.title
 
 
 class Lesson(models.Model):
@@ -55,13 +56,13 @@ class Lesson(models.Model):
         verbose_name='Ссылка'
     )
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
         ordering = ('-id',)
-
-    def __str__(self):
-        return self.title
 
 
 class Group(models.Model):
@@ -73,15 +74,21 @@ class Group(models.Model):
         related_name='groups',
         verbose_name='Группа'
     )
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='groups',
+        verbose_name='Участники'
+        )
     title = models.CharField(
         max_length=TITLE_MAX_LENGTH,
         verbose_name='Название'
     )
 
+    def __str__(self):
+        return f'Группа {self.title} курса {self.course}'
+
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
         ordering = ('-id',)
-
-    def __str__(self):
-        return f'Группа {self.title} курса {self.course}'

@@ -1,8 +1,9 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from core.constants import EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
+from core.constants import DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
 from courses.models import Course
 
 
@@ -45,13 +46,12 @@ class CustomUser(AbstractUser):
         default=ROLE_STUDENT,
         verbose_name='Ролевая принадлежность'
     )
+    groups = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        ordering = ('-id', )
+    def __str__(self):
+        return self.get_full_name()
 
     @property
     def is_teacher(self):
@@ -65,37 +65,43 @@ class CustomUser(AbstractUser):
                 or self.is_staff
         )
 
-    def __str__(self):
-        return self.get_full_name()
+    def has_access_to_course(self, course):
+        return Purchase.objects.filter(user=self, course=course).exists()
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('-id', )
 
 
 class Balance(models.Model):
     """Модель баланса пользователя."""
 
     user = models.OneToOneField(
-        CustomUser,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='balance',
         verbose_name='Пользователь'
     )
     amount = models.PositiveIntegerField(
-        verbose_name='Количество бонусов'
+        verbose_name='Количество бонусов',
+        default=DEFAULT_BALANCE_AMOUNT
     )
+
+    def __str__(self):
+        return f'Баланс пользователя {self.user.get_full_name()}: {self.amount}'
 
     class Meta:
         verbose_name = 'Баланс'
         verbose_name_plural = 'Балансы'
         ordering = ('-id',)
 
-    def __str__(self):
-        return f'Баланс пользователя {self.user.get_full_name()}: {self.amount}'
-
 
 class Purchase(models.Model):
     """Модель покупки курса пользователем."""
 
     user = models.ForeignKey(
-        CustomUser,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='buyer',
         verbose_name='Покупатель'
@@ -112,9 +118,12 @@ class Purchase(models.Model):
     )
 
     def __str__(self):
-        return f'Пользователь {self.user.get_full_name()} приобрел курс: {self.course}'
+        return f'Пользователь {self.user.get_full_name()} приобрел курс "{self.course}"'
 
     class Meta:
         verbose_name = 'Покупка'
         verbose_name_plural = 'Покупки'
         ordering = ('id',)
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'course'], name='unique_user_course')
+        ]
