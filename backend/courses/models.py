@@ -72,7 +72,7 @@ class Group(models.Model):
         Course,
         on_delete=models.CASCADE,
         related_name='groups',
-        verbose_name='Группа'
+        verbose_name='Курс'
     )
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,

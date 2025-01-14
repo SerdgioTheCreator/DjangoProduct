@@ -65,9 +65,6 @@ class CustomUser(AbstractUser):
                 or self.is_staff
         )
 
-    def has_access_to_course(self, course):
-        return Purchase.objects.filter(user=self, course=course).exists()
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
@@ -98,22 +95,23 @@ class Balance(models.Model):
 
 
 class PurchaseManager(models.Manager):
+    """Менеджер покупки курса пользователем."""
+
     @staticmethod
     def create_purchase(user, course):
         """Метод покупки курса пользователем."""
 
         with transaction.atomic():
             if not course.is_active:
-                raise ValueError('Этот курс недоступен для покупки.')
+                raise ValueError('Ошибка. Этот курс недоступен для покупки.')
 
             if user.balance.amount < course.price:
-                raise ValueError('Недостаточно средств для покупки курса.')
+                raise ValueError('Ошибка. Недостаточно средств для покупки курса.')
 
             user.balance.amount -= course.price
             user.balance.save()
 
-            purchase = Purchase.objects.create(user=user, course=course)
-            return purchase
+            return Purchase.objects.create(user=user, course=course)
 
 
 class Purchase(models.Model):
