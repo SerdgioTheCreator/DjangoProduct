@@ -12,7 +12,6 @@ def post_save_group(instance, created, **kwargs):
     Автоматическое распределение пользователей по
     группам после сохранения покупки курса.
     """
-
     if created:
         groups = Group.objects.filter(course=instance.course).prefetch_related('users')
         last_group = groups.last()
@@ -38,10 +37,10 @@ def post_save_group(instance, created, **kwargs):
 @receiver(post_delete, sender=Purchase)
 def post_delete_group(instance, using, **kwargs):
     """
-    Удаление пользователя из группы
-    курса после удаления его покупки.
-    """
+    Удаление пользователя из группы курса после удаления его покупки.
 
+    Если после удаления группа становится пустой, она также удаляется.
+    """
     group = Group.objects.select_related(
         'course'
     ).prefetch_related(
