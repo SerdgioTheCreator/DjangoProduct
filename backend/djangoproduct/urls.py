@@ -11,5 +11,5 @@ if settings.TESTING:
     ]
 else:
     urlpatterns = [
-                      path('admin/', admin.site.urls),
-                  ] + debug_toolbar_urls()
+        path('admin/', admin.site.urls),
+    ] + debug_toolbar_urls()

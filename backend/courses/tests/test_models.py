@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
-
-from unittest import TestCase
+from django.test import TestCase
 
 from courses.models import Course
 
@@ -30,7 +29,7 @@ class CourseModelTest(TestCase):
         self.assertEqual(str(self.course), 'Тестовый курс')
 
     def test_course_price_positive(self):
-        """Тест, что поле price принимает только положительные значения."""
+        """Тест поле price принимает только положительные значения."""
         with self.assertRaises(ValidationError):
             course = Course(
                 author='Тестовый автор',
@@ -40,3 +39,17 @@ class CourseModelTest(TestCase):
                 is_active=True
             )
             course.full_clean()
+
+    def test_course_default_ordering(self):
+        """Тест сортировки курсов по умолчанию."""
+        course_2 = Course.objects.create(
+            author='Тестовый автор',
+            title='Тестовый курс',
+            description='Тестовое описание',
+            price=1000,
+            is_active=True
+        )
+
+        courses = Course.objects.all()
+        self.assertEqual(courses.first(), course_2)
+        self.assertEqual(courses.last(), self.course)

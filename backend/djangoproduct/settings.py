@@ -8,7 +8,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 dotenv_path = os.path.join(BASE_DIR, '../infra/.env')
 
-# print('Путь к .env:', dotenv_path)
 load_dotenv(dotenv_path)
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='you_will_never_guess')
@@ -95,14 +94,14 @@ WSGI_APPLICATION = 'djangoproduct.wsgi.application'
 DB = os.getenv('DB', default=False) == 'True'
 
 if DB:
-    pass
-else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+else:
+    pass
 
 AUTH_PASSWORD_VALIDATORS = [
     {

@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.db import models
 
-from core.constants import (COURSE_AUTHOR_MAX_LENGTH, COURSE_DESCRIPTION_MAX_LENGTH,
-                            TITLE_MAX_LENGTH, URL_MAX_LENGTH)
+from core.constants import (COURSE_AUTHOR_MAX_LENGTH,
+                            COURSE_DESCRIPTION_MAX_LENGTH, TITLE_MAX_LENGTH,
+                            URL_MAX_LENGTH)
 
 
 class Course(models.Model):
@@ -45,7 +46,7 @@ class Lesson(models.Model):
         Course,
         on_delete=models.CASCADE,
         related_name='lessons',
-        verbose_name='Урок'
+        verbose_name='Курс'
     )
     title = models.CharField(
         max_length=TITLE_MAX_LENGTH,

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from users.models import Balance, CustomUser, Purchase
@@ -30,6 +31,18 @@ class UserAdmin(BaseUserAdmin):
 @admin.register(Purchase)
 class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('user', 'course', 'purchased_at')
+
+    def save_model(self, request, obj, form, change):
+        try:
+            Purchase.objects.create_purchase(user=obj.user, course=obj.course)
+        except ValidationError as e:
+            raise ValidationError(f'Ошибка: {e}.')
+
+    def delete_model(self, request, obj):
+        try:
+            Purchase.objects.delete_purchase(user=obj.user, course=obj.course)
+        except ValidationError as e:
+            raise ValidationError(f'Ошибка: {e}.')
 
 
 @admin.register(Balance)

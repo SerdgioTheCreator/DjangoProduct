@@ -3,7 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models, transaction
 
-from core.constants import DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
+from core.constants import (DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH,
+                            USERNAME_MAX_LENGTH)
 from courses.models import Course
 
 
@@ -99,7 +100,7 @@ class PurchaseManager(models.Manager):
 
     @staticmethod
     def create_purchase(user, course):
-        """Метод покупки курса пользователем."""
+        """Метод создания покупки курса пользователем."""
 
         with transaction.atomic():
             if not course.is_active:
@@ -112,6 +113,18 @@ class PurchaseManager(models.Manager):
             user.balance.save()
 
             return Purchase.objects.create(user=user, course=course)
+
+    @staticmethod
+    def delete_purchase(user, course):
+        """Метод удаления покупки курса пользователем."""
+
+        with transaction.atomic():
+
+            purchase = Purchase.objects.get(user=user, course=course)
+            user.balance.amount += course.price
+            user.balance.save()
+
+            return purchase.delete()
 
 
 class Purchase(models.Model):
