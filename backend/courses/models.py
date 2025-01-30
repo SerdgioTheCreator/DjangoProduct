@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db import models
 
 from core.constants import (COURSE_AUTHOR_MAX_LENGTH,
@@ -9,8 +10,11 @@ from core.constants import (COURSE_AUTHOR_MAX_LENGTH,
 class Course(models.Model):
     """Модель курса."""
 
-    author = models.CharField(
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         max_length=COURSE_AUTHOR_MAX_LENGTH,
+        related_name='courses',
         verbose_name='Автор'
     )
     title = models.CharField(
@@ -32,6 +36,12 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        """Проверка, что создатель курса является преподавателем или администратором."""
+        if not (self.author.is_teacher or self.author.is_admin):
+            raise PermissionDenied('Создавать курсы могут только преподаватели или администраторы.')
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Курс'

@@ -29,6 +29,8 @@ if TESTING:
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django_extensions',
+        'rest_framework',
+        'rest_framework.authtoken',
         'api.apps.ApiConfig',
         'core.apps.CoreConfig',
         'courses.apps.CoursesConfig',
@@ -117,6 +119,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+}
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

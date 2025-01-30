@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from debug_toolbar.toolbar import debug_toolbar_urls
 
@@ -8,8 +8,10 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 if settings.TESTING:
     urlpatterns = [
         path('admin/', admin.site.urls),
+        path('', include('api.urls')),
     ]
 else:
     urlpatterns = [
         path('admin/', admin.site.urls),
+        path('', include('api.urls')),
     ] + debug_toolbar_urls()

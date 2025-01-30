@@ -55,6 +55,10 @@ class CustomUser(AbstractUser):
         return self.get_full_name()
 
     @property
+    def is_student(self):
+        return self.role == self.ROLE_STUDENT
+
+    @property
     def is_teacher(self):
         return self.role == self.ROLE_TEACHER
 
@@ -98,8 +102,7 @@ class Balance(models.Model):
 class PurchaseManager(models.Manager):
     """Менеджер покупки курса пользователем."""
 
-    @staticmethod
-    def create_purchase(user, course):
+    def create_purchase(self, user, course):
         """Метод создания покупки курса пользователем."""
 
         with transaction.atomic():
@@ -114,12 +117,13 @@ class PurchaseManager(models.Manager):
 
             return Purchase.objects.create(user=user, course=course)
 
-    @staticmethod
-    def delete_purchase(user, course):
-        """Метод удаления покупки курса пользователем."""
+    def delete_purchase(self, user, course):
+        """
+        Метод удаления покупки курса пользователем
+        с возвратом средств на баланс.
+        """
 
         with transaction.atomic():
-
             purchase = Purchase.objects.get(user=user, course=course)
             user.balance.amount += course.price
             user.balance.save()
@@ -133,13 +137,13 @@ class Purchase(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='buyer',
+        related_name='purchases',
         verbose_name='Покупатель'
     )
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
-        related_name='course',
+        related_name='purchases',
         verbose_name='Курс'
     )
     purchased_at = models.DateTimeField(
