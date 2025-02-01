@@ -148,7 +148,7 @@ class Purchase(models.Model):
     )
     purchased_at = models.DateTimeField(
         verbose_name='Дата покупки',
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     objects = PurchaseManager()

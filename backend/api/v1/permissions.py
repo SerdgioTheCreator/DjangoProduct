@@ -1,16 +1,34 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
+from courses.models import Course
+from users.models import Purchase
 
-class IsGroupLessonCourseAuthorOrIsAdmin(BasePermission):
-    """Админы и авторы курса имеют полный доступ к урокам и группам курса."""
+
+class IsLessonOrGroupAccessible(BasePermission):
+    """
+    Студенты: имеют доступ к группам и урокам только купленных курсов.
+    Преподаватели: имеют доступ к группам и урокам только тех курсов, авторами которых являются.
+    Админ: имеет полный доступ.
+    """
 
     def has_permission(self, request, view):
-        if request.user.is_student:
-            return False
-        return True
+        user = request.user
+        course = get_object_or_404(Course, id=view.kwargs.get("course_id"))
+
+        if user == course.author or user.is_admin:
+            return True
+
+        return request.method in SAFE_METHODS and Purchase.objects.filter(course=course,
+                                                                          user=user).exists()
 
     def has_object_permission(self, request, view, obj):
-        return obj.course.author == request.user or request.user.is_admin
+        return (
+                obj.course.author == request.user
+                or request.user.is_admin
+                or (request.method in SAFE_METHODS and Purchase.objects.filter(course=obj.course,
+                                                                               user=request.user).exists())
+        )
 
 
 class IsCourseAuthorOrIsAdmin(BasePermission):

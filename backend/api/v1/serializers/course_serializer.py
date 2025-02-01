@@ -1,11 +1,8 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from core.constants import GROUPS_LIMIT, HUNDRED, ONE, USERS_LIMIT
 from courses.models import Course, Group, Lesson
 from users.models import CustomUser, Purchase
-
-User = get_user_model()
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -35,24 +32,11 @@ class CreateLessonSerializer(serializers.ModelSerializer):
         )
 
 
-class StudentSerializer(serializers.ModelSerializer):
-    """Студенты курса."""
-
-    class Meta:
-        model = User
-        fields = (
-            'id'
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-        )
-
-
 class GroupSerializer(serializers.ModelSerializer):
     """Список групп."""
 
-    users = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    course = serializers.StringRelatedField(source='course.title', read_only=True)
+    users = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Group
@@ -89,6 +73,7 @@ class MiniLessonSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     """Список курсов."""
 
+    author = serializers.StringRelatedField(read_only=True)
     lessons = MiniLessonSerializer(many=True, read_only=True)
     lessons_count = serializers.SerializerMethodField(read_only=True)
     students_count = serializers.SerializerMethodField(read_only=True)
@@ -104,7 +89,7 @@ class CourseSerializer(serializers.ModelSerializer):
         return Purchase.objects.filter(course=obj.id).count()
 
     def get_groups_filled_percent(self, obj):
-        """Процент заполнения групп, если в группе максимум 30 чел."""
+        """Процент заполнения групп, если в группе максимум USERS_LIMIT чел."""
         return round(
             obj.purchases.count() / (GROUPS_LIMIT * USERS_LIMIT) * HUNDRED,
             ONE
@@ -116,8 +101,7 @@ class CourseSerializer(serializers.ModelSerializer):
         if total_users == 0:
             return 0
 
-        purchases_count = Purchase.objects.filter(course=obj).count()
-        return round(purchases_count / total_users * HUNDRED)
+        return round(obj.purchases.count() / total_users * HUNDRED)
 
     class Meta:
         model = Course

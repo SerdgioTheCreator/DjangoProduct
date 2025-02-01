@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from api.v1.permissions import (IsCourseAuthorOrIsAdmin,
-                                IsGroupLessonCourseAuthorOrIsAdmin)
+                                IsLessonOrGroupAccessible)
 from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   CreateCourseSerializer,
                                                   CreateGroupSerializer,
@@ -17,7 +18,7 @@ from courses.models import Course
 class LessonViewSet(viewsets.ModelViewSet):
     """Уроки."""
 
-    permission_classes = (IsAuthenticated, IsGroupLessonCourseAuthorOrIsAdmin,)
+    permission_classes = (IsAuthenticated, IsLessonOrGroupAccessible,)
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -30,26 +31,13 @@ class LessonViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
-        if course.author != self.request.user and not self.request.user.is_staff:
-            raise PermissionDenied('Вы не можете добавлять уроки в чужой курс.')
         return serializer.save(course=course)
-
-    def perform_update(self, serializer):
-        lesson = self.get_object()
-        if lesson.course.author != self.request.user and not self.request.user.is_staff:
-            raise PermissionDenied('Вы не можете изменять уроки в чужом курсе.')
-
-        updated_course = serializer.validated_data.get('course', lesson.course)
-        if updated_course != lesson.course:
-            raise PermissionDenied('Нельзя менять курс у урока.')
-
-        serializer.save()
 
 
 class GroupViewSet(viewsets.ModelViewSet):
     """Группы."""
 
-    permission_classes = (IsAuthenticated, IsGroupLessonCourseAuthorOrIsAdmin,)
+    permission_classes = (IsAuthenticated, IsLessonOrGroupAccessible,)
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -62,24 +50,11 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
-        if course.author != self.request.user and not self.request.user.is_admin:
-            raise PermissionDenied('Вы не можете добавлять группы в чужой курс.')
         serializer.save(course=course)
-
-    def perform_update(self, serializer):
-        group = self.get_object()
-        if group.course.author != self.request.user and not self.request.user.is_admin:
-            raise PermissionDenied('Вы не можете изменять группы в чужом курсе.')
-
-        updated_course = serializer.validated_data.get("course", group.course)
-        if updated_course != group.course:
-            raise PermissionDenied('Нельзя менять курс у группы.')
-
-        serializer.save()
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    """Курсы """
+    """Курсы."""
 
     permission_classes = (IsAuthenticated, IsCourseAuthorOrIsAdmin,)
 
@@ -93,3 +68,8 @@ class CourseViewSet(viewsets.ModelViewSet):
             return Course.objects.all()
         else:
             return Course.objects.filter(is_active=True)
+
+
+@api_view(['GET'])
+def api_root():
+    return Response
