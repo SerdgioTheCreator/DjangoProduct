@@ -34,6 +34,11 @@ class IsLessonOrGroupAccessible(BasePermission):
 class IsCourseAuthorOrIsAdmin(BasePermission):
     """Админы и авторы курса имеют полный доступ к курсу."""
 
+    def has_permission(self, request, view):
+        if request.user.is_student:
+            return request.method in SAFE_METHODS
+        return True
+
     def has_object_permission(self, request, view, obj):
         return (obj.author == request.user
                 or request.user.is_admin

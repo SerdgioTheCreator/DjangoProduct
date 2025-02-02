@@ -8,13 +8,17 @@ from users.models import Purchase
 class CustomUserSerializer(UserCreateSerializer):
     """Пользователи."""
 
-    CHOICES = (
-        ('student', 'Студент'),
-        ('teacher', 'Преподаватель'),
+    ROLE_STUDENT = 'student'
+    ROLE_TEACHER = 'teacher'
+
+    ROLE_CHOICES = (
+        (ROLE_STUDENT, 'Студент'),
+        (ROLE_TEACHER, 'Преподаватель'),
     )
 
     balance = serializers.SerializerMethodField(read_only=True)
-    role = serializers.ChoiceField(choices=CHOICES, label='Ролевая принадлежность')
+    role = serializers.ChoiceField(choices=ROLE_CHOICES, label='Ролевая принадлежность', default=ROLE_STUDENT)
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'}, label='Пароль')
 
     def get_balance(self, obj):
         return obj.balance.amount
@@ -35,7 +39,7 @@ class CustomUserSerializer(UserCreateSerializer):
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
-    """Сериализатор покупок."""
+    """Покупки."""
 
     user = serializers.StringRelatedField(read_only=True)
     course = serializers.StringRelatedField(source='course.title', read_only=True)

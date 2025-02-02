@@ -74,21 +74,10 @@ class CourseViewSet(viewsets.ModelViewSet):
     @action(
         methods=['post'],
         detail=True,
-        url_path='pay',
         permission_classes=(IsAuthenticated,)
     )
     def pay(self, request, pk=None):
         """Покупка доступа к курсу."""
         course = self.get_object()
         Purchase.objects.create_purchase(user=request.user, course=course)
-        return Response({'detail': 'Покупка доступа к курсу прошла успешно.'}, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    """Домашняя страница API."""
-    return Response({
-        'courses': reverse('course-list', request=request, format=format),
-        'users': reverse('user-list', request=request, format=format),
-        'purchases': reverse('purchase-list', request=request, format=format),
-    })
+        return Response({'detail': 'Покупка доступа к курсу прошла успешно.'}, status=status.HTTP_201_CREATED)
