@@ -1,13 +1,20 @@
 from django.contrib.auth import get_user_model
+from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
 
 from users.models import Purchase
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    """Сериализатор пользователей."""
+class CustomUserSerializer(UserCreateSerializer):
+    """Пользователи."""
+
+    CHOICES = (
+        ('student', 'Студент'),
+        ('teacher', 'Преподаватель'),
+    )
 
     balance = serializers.SerializerMethodField(read_only=True)
+    role = serializers.ChoiceField(choices=CHOICES, label='Ролевая принадлежность')
 
     def get_balance(self, obj):
         return obj.balance.amount
@@ -23,6 +30,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'bio',
             'balance',
             'role',
+            'password',
         )
 
 
