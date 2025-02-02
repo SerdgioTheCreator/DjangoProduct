@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-if not TESTING:
+if not TESTING and DEBUG:
     INSTALLED_APPS += [
         'debug_toolbar'
     ]

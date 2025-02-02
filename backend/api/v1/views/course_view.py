@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework import status, viewsets
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from api.v1.permissions import (IsCourseAuthorOrIsAdmin,
                                 IsLessonOrGroupAccessible)
@@ -13,6 +14,7 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   GroupSerializer,
                                                   LessonSerializer)
 from courses.models import Course
+from users.models import Purchase
 
 
 class LessonViewSet(viewsets.ModelViewSet):
@@ -69,7 +71,24 @@ class CourseViewSet(viewsets.ModelViewSet):
         else:
             return Course.objects.filter(is_active=True)
 
+    @action(
+        methods=['post'],
+        detail=True,
+        url_path='pay',
+        permission_classes=(IsAuthenticated,)
+    )
+    def pay(self, request, pk=None):
+        """Покупка доступа к курсу."""
+        course = self.get_object()
+        Purchase.objects.create_purchase(user=request.user, course=course)
+        return Response({'detail': 'Покупка доступа к курсу прошла успешно.'}, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
-def api_root():
-    return Response
+def api_root(request, format=None):
+    """Домашняя страница API."""
+    return Response({
+        'courses': reverse('course-list', request=request, format=format),
+        'users': reverse('user-list', request=request, format=format),
+        'purchases': reverse('purchase-list', request=request, format=format),
+    })

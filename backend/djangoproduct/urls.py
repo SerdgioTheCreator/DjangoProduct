@@ -9,5 +9,5 @@ urlpatterns = [
     path('', include('api.urls')),
 ]
 
-if not settings.TESTING:
+if not settings.TESTING and settings.DEBUG:
     urlpatterns += debug_toolbar_urls()
