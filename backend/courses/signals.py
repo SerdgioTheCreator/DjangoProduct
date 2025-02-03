@@ -22,7 +22,7 @@ def post_save_purchase(instance, created, **kwargs):
         # Проверяем, если все группы заполнены
         all_full = all(group.students_count >= USERS_LIMIT for group in groups)
         if len(groups) == GROUPS_LIMIT and all_full:
-            raise ValueError(f"Все группы курса {instance.course} заполнены.")
+            raise ValueError(f'Все группы курса {instance.course} заполнены.')
 
         # Если групп меньше лимита, создаём новую группу
         if len(groups) < GROUPS_LIMIT:
