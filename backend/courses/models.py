@@ -73,7 +73,7 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
-        ordering = ('-id',)
+        ordering = ('id',)
 
 
 class Group(models.Model):
@@ -102,4 +102,4 @@ class Group(models.Model):
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
-        ordering = ('-id',)
+        ordering = ('id',)

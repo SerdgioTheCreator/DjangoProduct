@@ -1,9 +1,9 @@
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from api.v1.permissions import (IsCourseAuthorOrIsAdmin,
                                 IsLessonOrGroupAccessible)
@@ -13,7 +13,7 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   CreateLessonSerializer,
                                                   GroupSerializer,
                                                   LessonSerializer)
-from courses.models import Course
+from courses.models import Course, Group, Lesson
 from users.models import Purchase
 
 
@@ -28,8 +28,11 @@ class LessonViewSet(viewsets.ModelViewSet):
         return CreateLessonSerializer
 
     def get_queryset(self):
-        course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
-        return course.lessons.all()
+        return Lesson.objects.select_related(
+            'course'
+        ).filter(
+            course_id=self.kwargs.get('course_id')
+        )
 
     def perform_create(self, serializer):
         course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
@@ -47,8 +50,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         return CreateGroupSerializer
 
     def get_queryset(self):
-        course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
-        return course.groups.all()
+        return Group.objects.select_related(
+            'course'
+        ).filter(
+            course_id=self.kwargs.get('course_id')
+        )
 
     def perform_create(self, serializer):
         course = get_object_or_404(Course, id=self.kwargs.get('course_id'))
@@ -66,10 +72,13 @@ class CourseViewSet(viewsets.ModelViewSet):
         return CreateCourseSerializer
 
     def get_queryset(self):
+        queryset = Course.objects.annotate(
+            students_count=Count('purchases', distinct=True),
+            lessons_count=Count('lessons')
+        ).select_related('author').prefetch_related('lessons')
         if self.request.user.is_admin:
-            return Course.objects.all()
-        else:
-            return Course.objects.filter(is_active=True)
+            return queryset
+        return queryset.filter(is_active=True)
 
     @action(
         methods=['post'],

@@ -14,20 +14,23 @@ class IsLessonOrGroupAccessible(BasePermission):
 
     def has_permission(self, request, view):
         user = request.user
-        course = get_object_or_404(Course, id=view.kwargs.get("course_id"))
+        course = get_object_or_404(
+            Course.objects.select_related('author'),
+            id=view.kwargs.get("course_id")
+        )
 
         if user == course.author or user.is_admin:
             return True
 
-        return request.method in SAFE_METHODS and Purchase.objects.filter(course=course,
-                                                                          user=user).exists()
+        return request.method in SAFE_METHODS and Purchase.objects.filter(course_id=course.id,
+                                                                          user_id=user.id).exists()
 
     def has_object_permission(self, request, view, obj):
         return (
                 obj.course.author == request.user
                 or request.user.is_admin
-                or (request.method in SAFE_METHODS and Purchase.objects.filter(course=obj.course,
-                                                                               user=request.user).exists())
+                or (request.method in SAFE_METHODS and Purchase.objects.filter(course_id=obj.course.id,
+                                                                               user_id=request.user.id).exists())
         )
 
 

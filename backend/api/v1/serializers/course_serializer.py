@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from core.constants import GROUPS_LIMIT, HUNDRED, ONE, USERS_LIMIT
+from core.constants import GROUPS_LIMIT, HUNDRED, ONE, USERS_LIMIT, ZERO
 from courses.models import Course, Group, Lesson
-from users.models import CustomUser, Purchase
+from users.models import CustomUser
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -75,33 +75,22 @@ class CourseSerializer(serializers.ModelSerializer):
 
     author = serializers.StringRelatedField(read_only=True)
     lessons = MiniLessonSerializer(many=True, read_only=True)
-    lessons_count = serializers.SerializerMethodField(read_only=True)
-    students_count = serializers.SerializerMethodField(read_only=True)
+    lessons_count = serializers.IntegerField(read_only=True)
+    students_count = serializers.IntegerField(read_only=True)
     groups_filled_percent = serializers.SerializerMethodField(read_only=True)
     demand_course_percent = serializers.SerializerMethodField(read_only=True)
-
-    def get_lessons_count(self, obj):
-        """Количество уроков в курсе."""
-        return obj.lessons.count()
-
-    def get_students_count(self, obj):
-        """Общее количество студентов на курсе."""
-        return Purchase.objects.filter(course=obj.id).count()
 
     def get_groups_filled_percent(self, obj):
         """Процент заполнения групп, если в группе максимум USERS_LIMIT чел."""
         return round(
-            obj.purchases.count() / (GROUPS_LIMIT * USERS_LIMIT) * HUNDRED,
+            obj.students_count / (GROUPS_LIMIT * USERS_LIMIT) * HUNDRED,
             ONE
         )
 
     def get_demand_course_percent(self, obj):
         """Процент приобретения курса."""
         total_users = CustomUser.objects.count()
-        if total_users == 0:
-            return 0
-
-        return round(obj.purchases.count() / total_users * HUNDRED)
+        return round(obj.students_count / total_users * HUNDRED) if total_users > ZERO else ZERO
 
     class Meta:
         model = Course
