@@ -8,7 +8,7 @@ from users.models import Purchase
 
 
 @receiver(post_save, sender=Purchase)
-def post_save_group(instance, created, **kwargs):
+def post_save_purchase(instance, created, **kwargs):
     """
     Автоматическое равномерное распределение пользователей по
     группам после сохранения покупки курса.
@@ -38,7 +38,7 @@ def post_save_group(instance, created, **kwargs):
 
 
 @receiver(post_delete, sender=Purchase)
-def post_delete_group(instance, using, **kwargs):
+def post_delete_purchase(instance, using, **kwargs):
     """
     Удаление пользователя из группы курса после удаления его покупки.
 
