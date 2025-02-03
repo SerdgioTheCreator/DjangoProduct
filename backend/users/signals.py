@@ -5,7 +5,7 @@ from users.models import Balance, CustomUser
 
 
 @receiver(post_save, sender=CustomUser)
-def post_save_balance(instance, created, **kwargs):
+def post_save_custom_user(instance, created, **kwargs):
     """
     Автоматическое создание баланса пользователя
     после сохранения создания объекта пользователя.
