@@ -75,17 +75,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'djangoproduct.wsgi.application'
 
-DB = os.getenv('DB', default=False) == 'True'
+DB = os.getenv('DB', default='sqlite3')
 
-if DB:
+if DB == 'postgresql':
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+            'NAME': os.getenv('POSTGRES_DB', default='postgres'),
+            'USER': os.getenv('POSTGRES_USER', default='postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
+            'HOST': os.getenv('POSTGRES_HOST', default='localhost'),
+            'PORT': os.getenv('POSTGRES_PORT', default='5432'),
+        }
+    }
+if DB == 'sqlite3':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
-    pass
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -114,8 +123,15 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': True,
     'SERIALIZERS': {
+        'user': 'api.v1.serializers.user_serializer.CustomUserSerializer',
         'user_create': 'api.v1.serializers.user_serializer.CustomUserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ('rest_framework.permissions.IsAuthenticated',),
+        'user_list': ('rest_framework.permissions.IsAdminUser',)
     }
 }
 
