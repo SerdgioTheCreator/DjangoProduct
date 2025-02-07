@@ -13,7 +13,6 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     queryset = CustomUser.objects.select_related('balance').all()
     serializer_class = CustomUserSerializer
-    http_method_names = ('get', 'head', 'options', 'patch')
     permission_classes = (IsAdminUser,)
 
     @action(

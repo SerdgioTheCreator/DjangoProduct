@@ -75,6 +75,11 @@ class Command(BaseCommand):
         student.set_password(password)
         student.save()
 
+        print('\n\tЛогины тестовых пользователей:',
+              f'Админ - {admin.email}',
+              f'Преподаватель - {teacher.email}',
+              f'Студент - {student.email}\n', sep='\n\t')
+
         self.stdout.write(self.style.SUCCESS('-- Пользователи созданы --'))
 
         self.stdout.write(self.style.WARNING('-- Создаем тестовые курсы и уроки --'))

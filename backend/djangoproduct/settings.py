@@ -80,11 +80,11 @@ DB = os.getenv('DB', default='sqlite3')
 if DB == 'postgresql':
     DATABASES = {
         'default': {
-            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-            'NAME': os.getenv('POSTGRES_DB', default='postgres'),
+            'ENGINE': os.getenv('POSTGRES_DB_ENGINE', default='django.db.backends.postgresql'),
+            'NAME': os.getenv('POSTGRES_DB_NAME', default='postgres'),
             'USER': os.getenv('POSTGRES_USER', default='postgres'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-            'HOST': os.getenv('POSTGRES_HOST', default='localhost'),
+            'HOST': os.getenv('POSTGRES_HOST', default='db'),
             'PORT': os.getenv('POSTGRES_PORT', default='5432'),
         }
     }
