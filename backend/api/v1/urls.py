@@ -1,6 +1,9 @@
 from django.urls import include, path, re_path
-from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
-                                   SpectacularSwaggerView)
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 from rest_framework.routers import DefaultRouter
 
 from api.v1.views.course_view import CourseViewSet, GroupViewSet, LessonViewSet

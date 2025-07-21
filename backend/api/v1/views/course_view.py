@@ -5,14 +5,15 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.v1.permissions import (IsCourseAuthorOrIsAdmin,
-                                IsLessonOrGroupAccessible)
-from api.v1.serializers.course_serializer import (CourseSerializer,
-                                                  CreateCourseSerializer,
-                                                  CreateGroupSerializer,
-                                                  CreateLessonSerializer,
-                                                  GroupSerializer,
-                                                  LessonSerializer)
+from api.v1.permissions import IsCourseAuthorOrIsAdmin, IsLessonOrGroupAccessible
+from api.v1.serializers.course_serializer import (
+    CourseSerializer,
+    CreateCourseSerializer,
+    CreateGroupSerializer,
+    CreateLessonSerializer,
+    GroupSerializer,
+    LessonSerializer,
+)
 from courses.models import Course, Group, Lesson
 from users.models import Purchase
 

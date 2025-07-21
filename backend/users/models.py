@@ -3,8 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models, transaction
 
-from core.constants import (DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH,
-                            USERNAME_MAX_LENGTH)
+from core.constants import DEFAULT_BALANCE_AMOUNT, EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
 from courses.models import Course
 
 

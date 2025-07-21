@@ -3,8 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from api.v1.serializers.user_serializer import (CustomUserSerializer,
-                                                PurchaseSerializer)
+from api.v1.serializers.user_serializer import CustomUserSerializer, PurchaseSerializer
 from users.models import CustomUser, Purchase
 
 
