@@ -16,7 +16,7 @@ class IsLessonOrGroupAccessible(BasePermission):
         user = request.user
         course = get_object_or_404(
             Course.objects.select_related('author'),
-            id=view.kwargs.get("course_id")
+            id=view.kwargs.get('course_id')
         )
 
         if user == course.author or user.is_admin:
